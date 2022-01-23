@@ -2106,10 +2106,15 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function App(_ref) {
   var isLoggedIn = _ref.isLoggedIn;
 
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(isLoggedIn),
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(false),
       _useState2 = _slicedToArray(_useState, 2),
-      loggedIn = _useState2[0],
-      setLoggedIn = _useState2[1];
+      is2faRequired = _useState2[0],
+      setIs2faRequired = _useState2[1];
+
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(isLoggedIn),
+      _useState4 = _slicedToArray(_useState3, 2),
+      loggedIn = _useState4[0],
+      setLoggedIn = _useState4[1];
 
   (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(loadCsrf, []);
 
@@ -2153,11 +2158,18 @@ function App(_ref) {
     return _loadCsrf.apply(this, arguments);
   }
 
+  function onLogin(is2faRequired) {
+    setIs2faRequired(is2faRequired);
+    setLoggedIn(true);
+  }
+
+  if (is2faRequired) {
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(TwoFactorAuthScreen, {});
+  }
+
   if (!loggedIn) {
     return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(LoginForm, {
-      onSuccess: function onSuccess() {
-        return setLoggedIn(true);
-      }
+      onSuccess: onLogin
     });
   }
 
@@ -2168,18 +2180,54 @@ function App(_ref) {
   });
 }
 
+function TwoFactorAuthScreen() {
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(""),
+      _useState6 = _slicedToArray(_useState5, 2),
+      code = _useState6[0],
+      setCode = _useState6[1];
+
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("form", {
+    className: "max-w-xs mx-auto space-y-6",
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("label", {
+        htmlFor: "code",
+        className: "block text-sm font-medium text-gray-700",
+        children: "TOTP Code"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+        className: "mt-1",
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("input", {
+          type: "text",
+          id: "code",
+          name: "code",
+          value: code,
+          onChange: function onChange(e) {
+            return setCode(e.target.value);
+          },
+          required: true,
+          className: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        })
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+        className: "w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+        children: "Login"
+      })
+    })]
+  });
+}
+
 function LoginForm(_ref2) {
   var onSuccess = _ref2.onSuccess;
 
-  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(""),
-      _useState4 = _slicedToArray(_useState3, 2),
-      email = _useState4[0],
-      setEmail = _useState4[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(""),
+      _useState8 = _slicedToArray(_useState7, 2),
+      email = _useState8[0],
+      setEmail = _useState8[1];
 
-  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(""),
-      _useState6 = _slicedToArray(_useState5, 2),
-      password = _useState6[0],
-      setPassword = _useState6[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(""),
+      _useState10 = _slicedToArray(_useState9, 2),
+      password = _useState10[0],
+      setPassword = _useState10[1];
 
   function login(_x) {
     return _login.apply(this, arguments);
@@ -2187,6 +2235,7 @@ function LoginForm(_ref2) {
 
   function _login() {
     _login = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2(e) {
+      var response;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
@@ -2200,21 +2249,22 @@ function LoginForm(_ref2) {
               });
 
             case 4:
-              onSuccess();
-              _context2.next = 10;
+              response = _context2.sent;
+              onSuccess(response.data.two_factor);
+              _context2.next = 11;
               break;
 
-            case 7:
-              _context2.prev = 7;
+            case 8:
+              _context2.prev = 8;
               _context2.t0 = _context2["catch"](1);
               console.error(_context2.t0);
 
-            case 10:
+            case 11:
             case "end":
               return _context2.stop();
           }
         }
-      }, _callee2, null, [[1, 7]]);
+      }, _callee2, null, [[1, 8]]);
     }));
     return _login.apply(this, arguments);
   }
@@ -2276,6 +2326,11 @@ function LoginForm(_ref2) {
 function Home(_ref3) {
   var onLogout = _ref3.onLogout;
 
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_1__.useState)(""),
+      _useState12 = _slicedToArray(_useState11, 2),
+      qrCode = _useState12[0],
+      setQrCode = _useState12[1];
+
   function logout() {
     return _logout.apply(this, arguments);
   }
@@ -2310,9 +2365,63 @@ function Home(_ref3) {
     return _logout.apply(this, arguments);
   }
 
+  function enable2fa() {
+    return _enable2fa.apply(this, arguments);
+  }
+
+  function _enable2fa() {
+    _enable2fa = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
+      var response;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.prev = 0;
+              _context4.next = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_3___default().post("/user/two-factor-authentication");
+
+            case 3:
+              _context4.next = 5;
+              return axios__WEBPACK_IMPORTED_MODULE_3___default().get("/user/two-factor-qr-code");
+
+            case 5:
+              response = _context4.sent;
+              setQrCode(response.data.svg);
+              _context4.next = 12;
+              break;
+
+            case 9:
+              _context4.prev = 9;
+              _context4.t0 = _context4["catch"](0);
+              console.error(_context4.t0);
+
+            case 12:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4, null, [[0, 9]]);
+    }));
+    return _enable2fa.apply(this, arguments);
+  }
+
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("h1", {
       children: "Home!"
+    }), qrCode && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+        dangerouslySetInnerHTML: {
+          __html: qrCode
+        }
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+        onClick: function onClick() {
+          return setQrCode("");
+        },
+        children: "Done"
+      })]
+    }), !qrCode && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
+      onClick: enable2fa,
+      children: "Enable 2FA"
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("button", {
         onClick: logout,
